@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container border border-primary form-group col-md-4 offset-md-4 p-4 mt-5 rounded">
+	<h4>Enter Link to shorten</h4>
+	<form method="POST">
+			{{ form.hidden_tag() }}
+			{{ form.link.label }} {{ form.link(class="form-control") }}<br><br>
+			{{ form.short_link.label }} {{ form.short_link(class="form-control") }}
+			<br>
+			<small id="message" class="text-danger"></small>
+			<br>
+			{{ form.submit(class="btn btn-primary") }}
+	</form>
+</div>
+<script type="text/javascript">
+	const sl = document.getElementById('short_link');
+	const msg = document.getElementById('message');
+
+	sl.addEventListener('keyup', checkAvailable);
+	function checkAvailable(e) {
+		//let sl = document.getElementById('short_link').value;
+		
+		$.getJSON({
+			url: "/checkAvailable",
+			data: "link="+sl.value,
+	}).done(function(res) {
+		if(res.available === "true") {
+			document.getElementById('submit').disabled = false;
+			msg.innerHTML = "";
+		}
+		else{
+			document.getElementById('submit').disabled = true;
+			msg.innerHTML = "Short Link Taken/Invalid";
+		}
+
+	}).fail(function(jqxhr, textStatus, error) {
+		console.log(error + ' ' + error);
+		document.getElementById('submit').disabled = true;
+		msg.innerHTML = "Please check connection";
+	}).always( function(){
+		if(sl.value.length === 0) {
+			document.getElementById('submit').disabled = false;
+			msg.innerHTML = "";
+		}	
+	});
+	
+}
+</script>
+
+{% endblock %}

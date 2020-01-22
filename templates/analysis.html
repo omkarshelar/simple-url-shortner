@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br>
+<div class="container">
+</div>
+{% if not res %}
+<div class="container">
+		<h1>No Links found!</h1>
+		<p><a href="{{url_for('index')}}"><i class="material-icons">add</i>Create Links Here</a></p>
+</div>
+	
+{% endif %}
+{% if res %}
+
+<div class="container" style="overflow-x:auto;">
+	<h3>Your Links</h3>
+	<table class="table table-stripped sortable" style="display:block">
+		<thead class="thead-dark">
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Short Link</th>
+				<th scope="col">Long Link</th>
+				<th scope="col">Times Clicked</th>
+				<th scope="col">Actions</th>
+				<th scope="col">Active</th>
+			</tr>
+		</thead>
+	<tbody>
+		{% for item in res %}
+		{% set short_link = item[0] %}
+		{% set short_link1 = item[0] %}
+		{% set long_link = item[1] %}
+		{% set clicks = item[3] %}
+		{% set is_active = item[4] %}
+		{% set short_link = host + short_link %}
+
+		<tr>
+			<td> {{ loop.index }} </td>
+			<td><a target="_blank" href="{{ short_link }}">{{ short_link }}</a></td>
+			<td><a target="_blank" href="{{ long_link }}">{{ long_link }}</a></td>
+			<td><a target="_blank" href="{{ clicks }}">{{ clicks }}</a></td>
+			<td>
+				<a href="{{ url_for('delete', short_link=short_link1) }}"><i class="material-icons">delete</i></a>&nbsp;
+				<!-- <i class="material-icons">edit</i> -->
+			</td>
+				<td>
+				{% if is_active %}
+					<input type="checkbox" onchange="toggle(this,'{{short_link1}}')" checked data-toggle="toggle" data-width="30" data-height="30"data-on="<i class='material-icons'>link</i>Active" data-off="<i class='material-icons'>link_off</i>Deactivated" />
+				{% else %}
+					<input type="checkbox" onchange="toggle(this,'{{short_link1}}')" data-toggle="toggle" data-width="30" data-height="30"data-on="<i class='material-icons'>link</i>Active" data-off="<i class='material-icons'>link_off</i>Deactivated" />
+				{% endif %}
+			</td>
+		</tr>
+		{% endfor %}	
+	</tbody>
+</table>
+</div>
+{% endif %}
+
+<script>
+	function toggle(checkBox, sl) {
+		const status = Number(!!checkBox.checked)
+		$.getJSON({
+				url: "/activateToggle",
+				data: "sl="+sl+"&status="+status,
+			}).done(function(res) {
+				if(!!res.status)
+					console.log("Toggle Success");
+					console.log(res.new_status)
+			}).fail(function(jqxhr, textStatus, error) {
+				console.log(error);
+				console.log(!checkBox.checked);
+				$(checkBox).prop('checked',!checkBox.checked);
+			}).always(function() {
+			});
+	}
+</script>
+
+{% endblock %}
